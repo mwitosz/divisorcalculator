@@ -6,43 +6,44 @@
 package org.mwitosz.divisorcalc.unittests;
 
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
-import org.mwitosz.divisorcalc.services.DivisorCalcService;
-import org.mwitosz.divisorcalc.services.DivisorCalcServiceImpl;
+
+import org.mwitosz.divisorcalc.components.DivisorFinder;
 
 /**
  *
  * @author mwito
  */
-public class DivisorCalcServiceTest {
+public class DivisorFinderTest {
     
     @Test
     public void testDivisorCalculation() {
         
-        DivisorCalcService service = new DivisorCalcServiceImpl();
+        DivisorFinder finder = new DivisorFinder();
         
-        List<Integer> divisors = service.findDivisors(1);
+        List<Integer> divisors = finder.findDivisors(1);
         assertNotEquals(divisors, null);
         assertEquals(divisors.size(), 1);
         assertEquals(divisors.get(0), 1);
         
-        divisors = service.findDivisors(2);
+        divisors = finder.findDivisors(2);
         assertNotEquals(divisors, null);
         assertEquals(divisors.size(), 2);
         assertEquals(divisors.get(0), 1);
         assertEquals(divisors.get(1), 2);
         
-        divisors = service.findDivisors(4);
+        divisors = finder.findDivisors(4);
         assertNotEquals(divisors, null);
         assertEquals(divisors.size(), 3);
         assertEquals(divisors.get(0), 1);
         assertEquals(divisors.get(1), 2);
         assertEquals(divisors.get(2), 4);
         
-        divisors = service.findDivisors(10);
+        divisors = finder.findDivisors(10);
         assertNotEquals(divisors, null);
         assertEquals(divisors.size(), 4);
         assertEquals(divisors.get(0), 1);
@@ -50,13 +51,13 @@ public class DivisorCalcServiceTest {
         assertEquals(divisors.get(2), 5);
         assertEquals(divisors.get(3), 10);
         
-        divisors = service.findDivisors(13);
+        divisors = finder.findDivisors(13);
         assertNotEquals(divisors, null);
         assertEquals(divisors.size(), 2);
         assertEquals(divisors.get(0), 1);
         assertEquals(divisors.get(1), 13);
         
-        divisors = service.findDivisors(20);
+        divisors = finder.findDivisors(20);
         assertNotEquals(divisors, null);
         assertEquals(divisors.size(), 6);
         assertEquals(divisors.get(0), 1);

@@ -7,6 +7,7 @@ package org.mwitosz.divisorcalc.services;
 
 import java.util.HashMap;
 import java.util.Map;
+import static org.mwitosz.common.Utils.ASSERT;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,16 +24,15 @@ public class WordMapperServiceImpl implements WordMapperService {
     
     @Override
     public String mapNumber(String mappingName, Integer number) {
-        if (mappingRepository.containsKey(mappingName)) {
-            return mappingRepository.get(mappingName).mapNumber(number);
-        } else {
-            return null;
-        }
+        
+        ASSERT(isValidMapping(mappingName));
+        
+        return mappingRepository.get(mappingName).mapNumber(number);
     }
 
     @Override
     public boolean isValidMapping(String mappingType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return mappingRepository.containsKey(mappingType);
     }
     
 }

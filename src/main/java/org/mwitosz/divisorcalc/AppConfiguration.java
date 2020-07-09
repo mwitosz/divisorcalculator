@@ -35,16 +35,28 @@ public class AppConfiguration {
         animals.addEntry(2, "Cat");
         animals.addEntry(3, "Dog");
         animals.addEntry(4, "Elephant");
+        animals.addEntry(5, "Goose");
+        animals.addEntry(6, "Bear");
         
         WordMapping furnitures = new WordMapping("Furnitures");
         furnitures.addEntry(1, "Chair");
         furnitures.addEntry(2, "Table");
         furnitures.addEntry(3, "Cabinet");
         furnitures.addEntry(4, "Bed");
+        furnitures.addEntry(5, "Desk");
+        furnitures.addEntry(6, "Armchair");
         
+        WordMapping planets = new WordMapping("Planets");
+        planets.addEntry(1, "Earth");
+        planets.addEntry(2, "Mars");
+        planets.addEntry(3, "Saturn");
+        planets.addEntry(4, "Mercury");
+        planets.addEntry(5, "Uran");
+        planets.addEntry(6, "Neptun");
         
         mapper.registerMapping(animals);
         mapper.registerMapping(furnitures);
+        mapper.registerMapping(planets);
         
         return mapper;
     }

@@ -6,46 +6,126 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>Divisor calculator application</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <link rel="stylesheet" type="text/css" href="/css/simple.css">
+         
+        <script src="/js/prototype.js"></script>
         <script src="/js/jquery-3.5.1.js"></script>
-        <link rel="stylesheet" href="/js/jquery-ui-1.12.1/jquery-ui.css">
         <script src="/js/jquery-ui-1.12.1/jquery-ui.min.js"></script>
         
+
          <script>
+             
+            //MW: For simplicity all the "customized" javascript code is placed in this HTML file
+            //    In a real solution all these classes and utility methos should be placed in separate *.js files
+            //
             
-            function submit_form() {
+            // MW: Supporting wrapper classes for JSON objects.
+            //
+            var ActionResult = Class.create({
+                initialize: function(json_object) {
+                    this.json_object = json_object;
+                },
+                toString: function() {
+                    return JSON.stringify(this.json_object);
+                },
+                isSuccess: function() {
+                    return (this.json_object.status == "SUCCESS");
+                },
+                getFailureInfo: function() {
+                    if (this.isSuccess()) {
+                        return null;
+                    } else {
+                        return this.json_object.failureInfo;
+                    }
+                },
+                getObject: function() {
+                    if (this.isSuccess()) {
+                        return this.json_object.object;
+                    } else {
+                        return null;
+                    }
+                }
+            });
+              
+            
+            function mapping_to_html(json_mapping_object) {
                 
-                str_val = $('#num_list').val();
-                numbers = str_val.split(',');
+                output = "<ul>";
+                
+                $.each(json_mapping_object, function(number, words){
+                    output += "<li>" + number + ": ";
+                    $.each(words, function(index, next_word){
+                        output += next_word + " ";
+                    });
+                    output += "</li>";
+                });
+                
+                output += "</ul>";
+                
+                return output;
+            }
+            
+            // MW: enhancement - this function could be wrapped in a class
+            //
+            function submit_form(mapping_name, numbers) {
                 
                 $.ajax({
-                    url     : '/divisor_calculator/calculate/Animals',
+                    url     : '/divisor_calculator/calculate/' + mapping_name,
                     type    : 'POST',
                     async   : true,
                     cache   : false,
                     contentType: "application/json",
                     dataType: 'json',
                     data    : JSON.stringify(numbers),
-                    success: function(data) {
-                        str = JSON.stringify(data, null, 4);
-                        alert(str);
+                    success: function(json_data) {
+                        result = new ActionResult(json_data);
+                        if (result.isSuccess()) {
+                            $("#info_bar").html(mapping_to_html(result.getObject()));
+                        } else {
+                            $("#info_bar").text(result.getFailureInfo());
+                        }
+                        $("#info_bar").fadeIn(2000);
                     }
                 }).fail(function(xhr, status, error){
                     alert("Error");
                 });
             }
+            
+            function parse_numbers(str_val) {
+                is_valid = true;
+                list = str_val.split(',')
+                $.each(list, function(index, next_val){
+                    if (isNaN(next_val) || next_val <= 0) {
+                        is_valid = false;
+                    }
+                });
+                
+                if (is_valid) {
+                    return list;
+                } else {
+                    return null;
+                }
+            }
              
             $( function() {
 
-                $('#do_submit').button();
-
                 $('#form').submit( function(event) {
                     event.preventDefault();
-                    submit_form();
+                    
+                    $("#info_bar").fadeOut(10);
+                    
+                    parsed_numbers = parse_numbers($('#num_list').val());
+                    if (parsed_numbers == null) {
+                        $("#info_bar").html("<b>Invalid input</b>");
+                        $("#info_bar").fadeIn(2000);
+                    } else {
+                        mapping_name = $('#mapping_type').val();    
+                        submit_form(mapping_name, parsed_numbers);
+                    }
                 });
             })
  
@@ -56,21 +136,29 @@ and open the template in the editor.
             <form id="form">
                 
                 <div class="ui-widget">
-                    <label for="num_list">Fill numbers: </label><input id="num_list" />
+                    <label for="num_list">Fill numbers: </label>
+                    <input name="num_list" id="num_list" />
                 </div>
                 
-                <div>
+                <!--
+                 MW: The index.html should be generated on the server side from *.jsp page
+                     As well as the list of mapping types.
+                -->
+                <div class="form_elemnt">
                     <label for="mapping_type">Select a mapping: </label>
-                    <select name="mapping_type" id="speed">
-                      <option selected="selected">Animals</option>
-                      <option>Furnitures</option>
+                    <select name="mapping_type" id="mapping_type">
+                      <option value="Animals" selected="selected">Animals</option>
+                      <option value="Furnitures">Furnitures</option>
                     </select>
                 </div>
                 
-                <div>
+                <div class="form_elemnt">
                     <input type="submit" id="do_submit" value="Submit"/>
                 </div>
             </form>
+            <div id="info_bar">
+                Please submit the above form to compute divisors.
+            </div>
         </div>
     </body>
 </html>

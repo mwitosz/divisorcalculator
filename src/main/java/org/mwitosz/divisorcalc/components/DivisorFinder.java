@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.mwitosz.divisorcalc.services;
+package org.mwitosz.divisorcalc.components;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,9 +18,9 @@ import static org.mwitosz.common.Utils.ASSERT;
  * @author mwito
  */
 @Service
-public class DivisorCalcServiceImpl implements DivisorCalcService {
+public class DivisorFinder {
 
-    public static final Log log = LogFactory.getLog(DivisorCalcServiceImpl.class);
+    public static final Log log = LogFactory.getLog(DivisorFinder.class);
     
     public List<Integer> findDivisors(Integer number) {
         

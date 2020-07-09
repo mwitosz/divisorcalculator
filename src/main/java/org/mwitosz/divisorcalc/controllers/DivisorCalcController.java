@@ -19,9 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.mwitosz.divisorcalc.services.DivisorCalcServiceImpl;
+import org.mwitosz.divisorcalc.components.DivisorFinder;
 import org.mwitosz.divisorcalc.services.WordMapperService;
-import org.mwitosz.divisorcalc.services.DivisorCalcService;
 import org.springframework.web.bind.annotation.PathVariable;
 
 /**
@@ -32,13 +31,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/divisor_calculator")
 public class DivisorCalcController {
     
+    public class CalcResult extends HashMap<Integer, List<String>> {
+        
+    }
+    
     private static final Log log = LogFactory.getLog(DivisorCalcController.class);
     
-    @Autowired
-    private DivisorCalcService divisorFinder;
+    private DivisorFinder divisorFinder = new DivisorFinder();
+    
+    private WordMapperService mapper;
     
     @Autowired
-    private WordMapperService mapper;
+    public void setWordMapperService(WordMapperService mapper) {
+        this.mapper = mapper;
+    }
     
     // MW: The API between client and REST service is devined as below:
     //     - 
@@ -46,33 +52,46 @@ public class DivisorCalcController {
     //     - Otherwise (unknown mapping name, error) a null value is sent back.
     //
     @PostMapping(value="/calculate/{mapping}")
-    Map<Integer, List<String>> calculateAndMap(@PathVariable("mapping") String mappingName, 
+    public ActionResult<CalcResult> calculateAndMap(@PathVariable("mapping") String mappingName, 
                                                @RequestBody List<Integer> numbers) {
 
         // MW: We don't need to implement transactions (there is no data in 
         //     database - just simple "math" services. Because of this - the application logic
         //     is implementd in REST API method.  
         
-        Map<Integer, List<String>> mappingResult = new HashMap<Integer, List<String>>();
+        CalcResult mappingResult = new CalcResult();
         
-        log.debug("Going to map some numbers");
-        log.debug("Mapping name: " + mappingName);
+        log.debug("Trying to find divisors and mapping for" + mappingName);
+        
+        if (!mapper.isValidMapping(mappingName)) {
+            
+            log.debug("Unknown mapping type: " + mappingName);
+            
+            return ActionResult.Failure("Unknown mapping type: " + mappingName);
+        }
         
         for (Integer nextNumber: numbers) {
             
-            log.debug("Number: " + nextNumber);
+            log.debug("Finding: " + nextNumber + " divisors");
             
             List<Integer> divisors = divisorFinder.findDivisors(nextNumber);
             List<String> words = new LinkedList<String>();
             
             for (Integer nextDivisor: divisors) {
                 String word = mapper.mapNumber(mappingName, nextDivisor);
+                
+                if (word == null) {
+                    log.debug("Can't map divisor: " + nextDivisor + " to any word");
+                    
+                    return ActionResult.Failure("Can't find mapping for divisor: " + nextDivisor); 
+                }
+                
                 words.add(word);
             }
             
             mappingResult.put(nextNumber, words);
         }
         
-        return mappingResult;
+        return ActionResult.Success(mappingResult);
     }  
 }
